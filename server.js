@@ -6,6 +6,9 @@ var app = express();
 var dbops = require('./mongodb.js');
 var port = process.env.PORT || 3000;
 
+//Hardcode value for test
+//var longUrl = 'test1------www.google.com-------101test';
+
 //Express server object receiving a long url as a parameter
 app.get('*/new/*', function(request, response) {
 	request.on('error', function(error) {
@@ -18,6 +21,7 @@ app.get('*/new/*', function(request, response) {
 	//Extract input Url from request stream
 	var longUrl = request.params[0];
 
+
 	//Validate Url format
 	if (validateInputUrl(longUrl) == 'true') {
 		if (isDuplicateUrl(longUrl) == 'false') {
@@ -25,7 +29,7 @@ app.get('*/new/*', function(request, response) {
 
 			//test data for now
 			var urlData = {
-				originalLongUrl: 'test1------www.google.com-------1test',
+				originalLongUrl: longUrl,
 				shortCode: 0
 			};
 
@@ -33,7 +37,7 @@ app.get('*/new/*', function(request, response) {
 			dbops.enterNewUrlData(urlData);
 		}
 		else {
-			return console.log();
+			return console.log("Duplicate url");
 		}
 	}
 	else {
@@ -41,19 +45,22 @@ app.get('*/new/*', function(request, response) {
 	}
 });
 
+
 //Validate format of input url
 function validateInputUrl(url) {
 	var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
 	var result = pattern.test(url);
-
 	console.log('isValidUrl ?: ', result);
+	return result;
 }
 
 //Validate if url is a duplicate value
-function isDuplicateUrl() {
-
+function isDuplicateUrl(url) {
+	console.log('Inside isDuplicateUrl');
+	var result = dbops.checkDuplicateData(url);
+	console.log('result ', result);
+	return result;
 }
-
 
 
 //Express server instance listening on specific port

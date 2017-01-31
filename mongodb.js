@@ -50,8 +50,28 @@ module.exports = {
 				console.log("Entry saved to collection in db");
 			}
 		});
+	},
+
+	checkDuplicateData: function(inputUrl) {
+		urlShortenerModel.find({
+			'originalLongUrl': inputUrl
+		}, function(error, docs) {
+			if (error) {
+				return console.log('An error has occured', error);
+			}
+			else {
+				console.log("docs.length: ", docs.length);
+				var isDuplicate = true;
+				if (docs.length != 0) {
+					isDuplicate = true;
+				}
+				else{
+					isDuplicate = false;
+				}
+				return isDuplicate;
+				console.log("Queried docs ", docs);
+			}
+		});
 	}
-}
-
-
+};
 //On enetring a document not following the Schema, a validation error will be thrown
