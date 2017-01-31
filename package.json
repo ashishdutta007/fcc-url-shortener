@@ -4,11 +4,14 @@
   "description": "url-shortner,microservice,fcc,mongodb",
   "main": "server.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node server.js"
   },
   "author": "theokeles",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "mongodb": "^2.2.22",
+    "mongoose": "^4.7.8"
   }
 }
