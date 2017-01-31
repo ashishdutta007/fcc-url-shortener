@@ -16,15 +16,19 @@ app.get('/new/*', function(request, response) {
     });
 
     //Extract input Url from request stream
-    var longUrl = request.params[0];
-    
+    //var longUrl = request.params[0];
+    var longUrl = 'https://www.freecodecamp.com/challenges/url-shortener-microservice';
+
     //Validate Url format
     validateInputUrl(longUrl);
-    
+
 });
 
-function validateInputUrl(url){
-    
+function validateInputUrl(url) {
+    var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
+    var result = pattern.test(url);
+
+    console.log('isValidUrl ? ', result);
 }
 
 
