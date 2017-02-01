@@ -10,7 +10,7 @@ var port = process.env.PORT || 3000;
 //var longUrl = 'test1------www.google.com-------101test';
 
 //Express server object receiving a long url as a parameter
-app.get('*/new/*', function(request, response) {
+app.get('/new/*', function(request, response) {
 	request.on('error', function(error) {
 		return console.log("An error has occurred ", error);
 	});
@@ -23,8 +23,8 @@ app.get('*/new/*', function(request, response) {
 
 
 	//Validate Url format
-	if (validateInputUrl(longUrl) == 'true') {
-		if (isDuplicateUrl(longUrl) == 'false') {
+	if (validateInputUrl(longUrl) == true) {
+		if (isDuplicateUrl(longUrl) == false) {
 			console.log("Valid url for entry to db");
 
 			//test data for now
@@ -48,7 +48,7 @@ app.get('*/new/*', function(request, response) {
 
 //Validate format of input url
 function validateInputUrl(url) {
-	var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
+	var pattern = new RegExp("(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
 	var result = pattern.test(url);
 	console.log('isValidUrl ?: ', result);
 	return result;
