@@ -49,10 +49,8 @@ app.get('/new/*', function(request, response) {
             var isDuplicateUrl;
             if (doc.length == 0) {
                 isDuplicateUrl = false;
-                //return isDuplicateUrl;
             } else {
                 isDuplicateUrl = true;
-                //return isDuplicateUrl;
             }
             console.log("--isDuplicateUrl-- ", isDuplicateUrl);
         });

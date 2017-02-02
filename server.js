@@ -18,33 +18,44 @@ app.get('/new/*', function(request, response) {
     });
     //Extract input Url from request stream
     var longUrl = request.params[0];
-    //Validate Url format
+    //Validate Url format and duplicate values
     if (validateInputUrl(longUrl) === true) {
-        //console.log("isDuplicateUrl(longUrl): ", isDuplicateUrl(longUrl));
+        //Mongoose query.exec() function returns a promise
         isDuplicateUrl(longUrl).then(function(docs) {
             if (docs.length === 0) {
-                console.log('Inside ');
                 //Hardcoded shortCode value in json object
                 var urlData = {
                     'originalLongUrl': longUrl,
                     'shortCode': 0
                 };
+                //save() function returns a promise
                 var savePromise = dbops.enterNewUrlData(urlData);
+                //save() on returning value from callback
                 savePromise.then(function(docs) {
-                    /*if (error) {
-                        console.log("An error occured");
-                    } else*/
                     {
-                        console.log("Url " + docs.originalLongUrl + "is saved to db");
+                        //URL shortening logic
+                        //
+                        //
+                        console.log("Url " + docs.originalLongUrl + "is shortened and saved to db");
+                        response.status(200).json({
+                            'originalUrl': longUrl,
+                            'shortURL': 'xyz'
+                        });
                     }
                 });
             } else {
-                console.log("Duplicate url exists in db");
-                response.json({ 'error': 'Duplicate url exists in db' });
+                response.status(200).json({
+                    'error': 'Duplicate value, URL already exists in db',
+                    'url': longUrl
+                });
+                return console.log("Duplicate url exists in db");
             }
         });
     } else {
-        response.json({ 'error': 'Invalid url format' });
+        response.status(500).json({
+            'error': 'Invalid URL format, URL must comply to http(s)://(www.)domain.ext(/)(path)',
+            'url': longUrl
+        });
         return console.log("Invalid url format");
     }
 });
@@ -53,13 +64,11 @@ app.get('/new/*', function(request, response) {
 function validateInputUrl(url) {
     var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
     var result = pattern.test(url);
-    console.log('isValidUrl ?: ', result);
     return result;
 }
 
 //Validate if url is a duplicate value
 function isDuplicateUrl(url) {
-    console.log('Inside isDuplicateUrl');
     return dbops.checkDuplicateData(url);
 }
 
@@ -67,3 +76,6 @@ function isDuplicateUrl(url) {
 app.listen(port, function() {
     console.log("Server listening on port ", port);
 });
+
+//handle errors in case of promises
+//error handling overall

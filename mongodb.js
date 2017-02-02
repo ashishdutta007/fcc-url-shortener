@@ -28,13 +28,11 @@ var urlShortnerSchema = mongoose.Schema({
 
 //Models are constructors compiled from Schema definitions.
 //Creating a model(object) for querying,creating and validating documents in 'UrlData' collection based on the specific schema(urlShortnerSchema).
-
 var urlShortenerModel = dbconn.model('urldata', urlShortnerSchema);
 
 //module.exports object contains those contents of the file that we want other files to use
 module.exports = {
     enterNewUrlData: function(newUrlData) {
-        console.log('Inside enterNewUrlData');
         //New instance of model to enter new document
         var newEntry = new urlShortenerModel(newUrlData);
 
@@ -47,6 +45,7 @@ module.exports = {
             }
         });*/
 
+        //mongoose save() function returns promise
         var savePromise = newEntry.save();
         return savePromise;
     },
@@ -56,8 +55,8 @@ module.exports = {
         var isDuplicateUrl;
         var query = urlShortenerModel.find({ 'originalLongUrl': inputUrl });
         var queryPromise = query.exec();
-        /*console.log('----After promise----- ');
-        promise.then(function(doc) {
+        
+        /*promise.then(function(doc) {
             console.log("Inside promise then()");
             isDuplicateUrl = true;
             if (doc.length == 0) {
@@ -68,6 +67,7 @@ module.exports = {
             console.log("--isDuplicateUrl-- ", isDuplicateUrl);
         });
         return isDuplicateUrl;*/
+        
         return queryPromise;
     },
 
