@@ -20,18 +20,75 @@ var dbconn = mongoose.connect(url, function(error) {
 //Schema are the blueprint(class) for the documents in the collection.
 var urlShortnerSchema = mongoose.Schema({
     originalLongUrl: String,
-    shortCode: {
+    urlCode: {
         type: Number,
         index: true
     }
 });
 
+//Counters collection keeps track of the latest count_sequences of different fields
+//Schema for counters collection
+var countersCollectionSchema = mongoose.Schema({
+    "_id": String,
+    "sequence_value": Number
+});
+
 //Models are constructors compiled from Schema definitions.
 //Creating a model(object) for querying,creating and validating documents in 'UrlData' collection based on the specific schema(urlShortnerSchema).
 var urlShortenerModel = dbconn.model('urldata', urlShortnerSchema);
+//Model for counter collection
+var countersCollectionModel = dbconn.model('counter', countersCollectionSchema);
+
+//One time insert counter collection with - sequence_value": 1000
+var counterData = {
+    "_id": "urlCode",
+    "sequence_value": 1000
+};
+var counterEntry = new countersCollectionModel(counterData);
+var counterPromise = counterEntry.save();
+countersCollectionModel.find({ "sequence_value": 1000 }, function(error, docs) {
+    if (error) {
+        console.log("An error occured", error);
+    } else {
+        if (docs.length === 0) {
+            counterPromise.then(function(docs) {
+                console.log("Initial counter doc " + docs + " saved to db");
+            });
+        }
+    }
+});
 
 //module.exports object contains those contents of the file that we want other files to use
 module.exports = {
+
+    getNextUrlCodeSequence: function(sequenceName) {
+        console.log('Inside getNextUrlCodeSequence');
+
+        var counterPromise = countersCollectionModel.find({ _id: sequenceName }).exec();
+        /*counterPromise.then(function(sequence_doc) {
+                console.log("docs", sequence_doc);
+                return sequence_doc;
+            })
+            .then(function(sequence_doc) {
+                console.log('sequence_doc.sequence_value', sequence_doc.sequence_value);
+                sequence_doc.sequence_value = sequence_doc.sequence_value + 1;
+                urlCode = sequence_doc.sequence_value;
+                return sequence_doc.save();
+            })
+            .then(function(docs) {
+                console.log("The doc " + docs + " is saved");
+                return urlCode;
+            });*/
+        console.log("Hello Dolly 0 !!");
+        return counterPromise;
+    },
+
+    incrementCounter: function() {
+        var conterUpdatePromise = countersCollectionModel.update({ "_id": "urlCode" }, { $inc: { sequence_value: 1 } }).exec();
+        console.log("-------", conterUpdatePromise instanceof Promise);
+        return conterUpdatePromise;
+    },
+
     enterNewUrlData: function(newUrlData) {
         //New instance of model to enter new document
         var newEntry = new urlShortenerModel(newUrlData);
@@ -55,7 +112,7 @@ module.exports = {
         var isDuplicateUrl;
         var query = urlShortenerModel.find({ 'originalLongUrl': inputUrl });
         var queryPromise = query.exec();
-        
+
         /*promise.then(function(doc) {
             console.log("Inside promise then()");
             isDuplicateUrl = true;
@@ -67,7 +124,7 @@ module.exports = {
             console.log("--isDuplicateUrl-- ", isDuplicateUrl);
         });
         return isDuplicateUrl;*/
-        
+
         return queryPromise;
     },
 
@@ -87,7 +144,7 @@ module.exports = {
                     console.log('Valid url for entry to db');
                     var newUrlData = {
                         originalLongUrl: inputUrl,
-                        shortCode: 0
+                        urlCode: 0
                     };
                     var newEntry = new urlShortenerModel(newUrlData);
                     //Document entry into db
@@ -103,6 +160,7 @@ module.exports = {
         });
     }*/
 };
+
 
 //Model is used for querying,creating,retrieving documents.
 //On enetring a document not following the Schema, a validation error will be thrown

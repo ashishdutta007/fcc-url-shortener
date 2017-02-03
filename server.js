@@ -23,26 +23,40 @@ app.get('/new/*', function(request, response) {
         //Mongoose query.exec() function returns a promise
         isDuplicateUrl(longUrl).then(function(docs) {
             if (docs.length === 0) {
-                //Hardcoded shortCode value in json object
-                var urlData = {
-                    'originalLongUrl': longUrl,
-                    'shortCode': 0
-                };
-                //save() function returns a promise
-                var savePromise = dbops.enterNewUrlData(urlData);
-                //save() on returning value from callback
-                savePromise.then(function(docs) {
-                    {
-                        //URL shortening logic
-                        //
-                        //
-                        console.log("Url " + docs.originalLongUrl + "is shortened and saved to db");
-                        response.status(200).json({
-                            'originalUrl': longUrl,
-                            'shortURL': 'xyz'
-                        });
-                    }
-                });
+                console.log("Not duplicate url");
+                var urlData;
+                var counterPromise = dbops.getNextUrlCodeSequence('urlCode');
+                counterPromise.then(function(docs) {
+                        var urlCode = Number(docs[0].sequence_value);
+                        console.log('urlCode', urlCode);
+                        urlData = {
+                            'originalLongUrl': longUrl,
+                            'urlCode': urlCode
+                        };
+
+                        //save() function returns a promise
+                        var savePromise = dbops.enterNewUrlData(urlData);
+                        return savePromise;
+                    })
+                    //save() on returning value from callback
+                    .then(function(docs) {
+                        {
+                            //URL shortening logic
+                            //
+                            console.log("Url " + docs.originalLongUrl + "is shortened and saved to db");
+                            //Increment the globalUniqueUrlId by 1
+                            //globalUniqueUrlId++;
+                            response.status(200).json({
+                                'originalURL': docs.originalLongUrl,
+                                'urlCode': docs.urlCode,
+                                'shortURL': ''
+                            });
+                        }
+                        dbops.incrementCounter()
+                            .then(function(docs) {
+                                console.log("Docs : saved to collection counter", docs);
+                            });
+                    });
             } else {
                 response.status(200).json({
                     'error': 'Duplicate value, URL already exists in db',
@@ -64,6 +78,7 @@ app.get('/new/*', function(request, response) {
 function validateInputUrl(url) {
     var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
     var result = pattern.test(url);
+    console.log("is validURL: ", result);
     return result;
 }
 

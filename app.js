@@ -22,7 +22,7 @@ var dbconn = mongoose.connect(url, function(error) {
 //Schema are the blueprint(class) for the documents in the collection.
 var urlShortnerSchema = mongoose.Schema({
     originalLongUrl: String,
-    shortCode: {
+    urlCode: {
         type: Number,
         index: true
     }
@@ -47,7 +47,7 @@ app.get('/new/*', function(request, response) {
         //console.log("isDuplicateUrl(longUrl): ", checkDuplicateData(longUrl));
         isDuplicateUrl(longUrl).then(function(doc) {
             var isDuplicateUrl;
-            if (doc.length == 0) {
+            if (doc.length === 0) {
                 isDuplicateUrl = false;
             } else {
                 isDuplicateUrl = true;
