@@ -8,7 +8,7 @@ var port = process.env.PORT || 3000;
 
 console.log("Node Express Server");
 
-//Express server object receiving a long url as a parameter
+//Express server object on get reuests with long URL as parameter
 app.get('/new/*', function(request, response) {
     request.on('error', function(error) {
         return console.log("An error has occurred ", error);
@@ -16,16 +16,19 @@ app.get('/new/*', function(request, response) {
     response.on('error', function(error) {
         return console.log("An error has occurred ", error);
     });
-    //Extract input Url from request stream
+    //Extract input URL from request stream
     var longUrl = request.params[0];
-    //Validate Url format and duplicate values
+    //Validate URL format and duplicate values
     if (validateInputUrl(longUrl) === true) {
-        //Mongoose query.exec() function returns a promise
+        console.log("A valid URL");
+        //Mongoose query.exec() function returns a Promise
         isDuplicateUrl(longUrl).then(function(docs) {
             if (docs.length === 0) {
-                console.log("Not duplicate url");
+                console.log("Not a duplicate URL");
                 var urlData;
-                var counterPromise = dbops.getNextUrlCodeSequence('urlCode');
+                //Get the 'urlCode sequence value' for new urlData entry
+                var counterPromise = dbops.getLatestUrlCodeSequence('urlCode');
+                //On Promise return of queried docs
                 counterPromise.then(function(docs) {
                         var urlCode = Number(docs[0].sequence_value);
                         console.log('urlCode', urlCode);
@@ -33,19 +36,17 @@ app.get('/new/*', function(request, response) {
                             'originalLongUrl': longUrl,
                             'urlCode': urlCode
                         };
-
+                        //Enter 'urlData' with latest 'urlCode' sequence
                         //save() function returns a promise
                         var savePromise = dbops.enterNewUrlData(urlData);
                         return savePromise;
                     })
-                    //save() on returning value from callback
+                    //On savePromise return of docs saved to db
                     .then(function(docs) {
                         {
                             //URL shortening logic
                             //
-                            console.log("Url " + docs.originalLongUrl + "is shortened and saved to db");
-                            //Increment the globalUniqueUrlId by 1
-                            //globalUniqueUrlId++;
+                            console.log("URL " + docs.originalLongUrl + " is shortened and saved to db");
                             response.status(200).json({
                                 'originalURL': docs.originalLongUrl,
                                 'urlCode': docs.urlCode,
@@ -53,28 +54,28 @@ app.get('/new/*', function(request, response) {
                             });
                         }
                         dbops.incrementCounter()
-                            .then(function(docs) {
-                                console.log("Docs : saved to collection counter", docs);
+                            .then(function(result) {
+                                console.log("Success updated counters collection sequence field ", result);
                             });
                     });
             } else {
+                console.log("Duplicate URL");
                 response.status(200).json({
                     'error': 'Duplicate value, URL already exists in db',
                     'url': longUrl
                 });
-                return console.log("Duplicate url exists in db");
             }
         });
     } else {
+        console.log("Invalid URL format");
         response.status(500).json({
-            'error': 'Invalid URL format, URL must comply to http(s)://(www.)domain.ext(/)(path)',
+            'error': 'Invalid URL format.URL must comply to http(s)://(www.)domain.ext(/)(path)',
             'url': longUrl
         });
-        return console.log("Invalid url format");
     }
 });
 
-//Validate format of input url
+//Validate format of input URL with RegEx pattern
 function validateInputUrl(url) {
     var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
     var result = pattern.test(url);
