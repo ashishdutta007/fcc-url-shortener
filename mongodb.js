@@ -23,7 +23,8 @@ var urlShortnerSchema = mongoose.Schema({
     urlCode: {
         type: Number,
         index: true
-    }
+    },
+    shortURL: String
 });
 
 //Counters collection keeps track of the latest count_sequences of different fields
@@ -141,7 +142,7 @@ module.exports = {
                     return console.log('An error has occured', error);
                 } else {
                     console.log("Queried docs ", docs);
-                    console.log("docs.length: ", docs.length);
+                    console.log("docs.length	: ", docs.length);
                     if (docs.length !== 0) {
                         var isDuplicate = true;
                         console.log("There is a duplicate url in the db");

@@ -4,6 +4,7 @@ var express = require("express");
 var app = express();
 //require() returns module.exports{} object of the mentioned js 
 var dbops = require('./mongodb.js');
+var shortjs = require('./shortener.js');
 var port = process.env.PORT || 3000;
 
 console.log("Node Express Server");
@@ -18,6 +19,7 @@ app.get('/new/*', function(request, response) {
     });
     //Extract input URL from request stream
     var longUrl = request.params[0];
+    //var urlCode;
     //Validate URL format and duplicate values
     if (validateInputUrl(longUrl) === true) {
         console.log("A valid URL");
@@ -31,12 +33,17 @@ app.get('/new/*', function(request, response) {
                 //On Promise return of queried docs
                 counterPromise.then(function(docs) {
                         var urlCode = Number(docs[0].sequence_value);
+                        //URL shortening logic
+                        //
+                        var shortUrl = shortjs.getShortUrl(urlCode);
+                        var resultShortUrl = shortUrl + '.theo';
                         console.log('urlCode', urlCode);
                         urlData = {
                             'originalLongUrl': longUrl,
-                            'urlCode': urlCode
+                            'urlCode': urlCode,
+                            'shortURL': resultShortUrl
                         };
-                        //Enter 'urlData' with latest 'urlCode' sequence
+                        //Enter 'urlData' with latest 'urlCode' sequence and shortenedUrl
                         //save() function returns a promise
                         var savePromise = dbops.enterNewUrlData(urlData);
                         return savePromise;
@@ -44,13 +51,10 @@ app.get('/new/*', function(request, response) {
                     //On savePromise return of docs saved to db
                     .then(function(docs) {
                         {
-                            //URL shortening logic
-                            //
-                            console.log("URL " + docs.originalLongUrl + " is shortened and saved to db");
                             response.status(200).json({
                                 'originalURL': docs.originalLongUrl,
                                 'urlCode': docs.urlCode,
-                                'shortURL': ''
+                                'shortURL': docs.shortURL
                             });
                         }
                         dbops.incrementCounter()
@@ -95,3 +99,4 @@ app.listen(port, function() {
 
 //handle errors in case of promises
 //error handling overall
+//what kind of operations are considered async
