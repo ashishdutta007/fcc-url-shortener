@@ -23,8 +23,8 @@ module.exports = {
         console.log("resultArray: ", resultArray.toString());
         var shortenedUrl = resultArray.toString().replace(/\,/g, "");
         console.log("Converted base shortened url:", shortenedUrl);
-        //shortUrl = [];
-        //console.log("shortUrl = []: ", shortUrl = []);
+        shortUrl.fill('');
+        console.log("shortUrl = []: ", shortUrl);
         return shortenedUrl;
     }
 };

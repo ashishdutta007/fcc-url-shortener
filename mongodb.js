@@ -67,8 +67,12 @@ countersCollectionModel.find({ "sequence_value": 1000 }, function(error, docs) {
 
 //module.exports object contains those contents(functions and data) that we want other files to use
 module.exports = {
-
-    //Retrieve the next urlCode sequence value 
+    //Check validity of short URL and redirect
+    checkIfShortUrlExist: function(shortUrl) {
+            var checkPromise = urlShortenerModel.findOne({ 'shortURL': shortUrl }).exec();
+            return checkPromise;
+        },
+        //Retrieve the next urlCode sequence value 
     getLatestUrlCodeSequence: function(sequenceName) {
         //query({}).exec() returns a js Promise(mongoose default)
         var counterPromise = countersCollectionModel.find({ _id: sequenceName }).exec();

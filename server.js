@@ -9,6 +9,11 @@ var port = process.env.PORT || 3000;
 
 console.log("Node Express Server");
 
+//Serving static UI files
+//Pass the name of the lookup directory containing the static files
+//Express.static() looks for all the files relative to the directory to match the filename in URL request 
+app.use(express.static(__dirname + '/views'));
+
 //Express server object on get reuests with long URL as parameter
 app.get('/new/*', function(request, response) {
     request.on('error', function(error) {
@@ -77,6 +82,26 @@ app.get('/new/*', function(request, response) {
             'url': longUrl
         });
     }
+});
+
+app.get('/:shortUrl', function(request, response) {
+    request.on('error', function(error) {
+        console.log("An error has occured", error);
+    });
+    response.on('error', function(error) {
+        console.log("An error has occured", error);
+    });
+    var shortUrl = request.params.shortUrl;
+    console.log("shortUrl: ", shortUrl);
+    dbops.checkIfShortUrlExist(shortUrl).then(function(docs) {
+        console.log("docs: ", docs);
+        if (!docs) {
+            response.status(404).json({ "error": "Incorrect short URL,please check the URL again" });
+        } else {
+            console.log("docs.originalLongUrl:", docs.originalLongUrl);
+            response.redirect(docs.originalLongUrl);
+        }
+    });
 });
 
 //Validate format of input URL with RegEx pattern
