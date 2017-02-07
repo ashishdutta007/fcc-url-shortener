@@ -1,7 +1,10 @@
 //Importing mongodb and mongoose modules
 var mongodb = require('mongodb');
 var mongoose = require("mongoose");
-var url = 'mongodb://localhost:27017/urlShortener';
+//var url = 'mongodb://localhost:27017/urlShortener';
+//var url = 'mongodb://theokeles:Ckdnsdacd#050@ds01316.mlab.com:1316/urlShortener';
+//Protecting the credentials by setting env variables in Heroku, not exposing in public repo
+var url = process.env.MONGOLAB_URI;
 //Using global promise since mongoose promise is deprecated
 mongoose.Promise = global.Promise;
 
@@ -69,10 +72,10 @@ countersCollectionModel.find({ "sequence_value": 1000 }, function(error, docs) {
 module.exports = {
     //Check validity of short URL and redirect
     checkIfShortUrlExist: function(shortUrl) {
-            var checkPromise = urlShortenerModel.findOne({ 'shortURL': shortUrl }).exec();
-            return checkPromise;
-        },
-        //Retrieve the next urlCode sequence value 
+        var checkPromise = urlShortenerModel.findOne({ 'shortURL': shortUrl }).exec();
+        return checkPromise;
+    },
+    //Retrieve the next urlCode sequence value 
     getLatestUrlCodeSequence: function(sequenceName) {
         //query({}).exec() returns a js Promise(mongoose default)
         var counterPromise = countersCollectionModel.find({ _id: sequenceName }).exec();
