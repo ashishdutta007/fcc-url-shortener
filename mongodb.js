@@ -2,7 +2,7 @@
 var mongodb = require('mongodb');
 var mongoose = require("mongoose");
 //var url = 'mongodb://localhost:27017/urlShortener';
-//var url = 'mongodb://theokeles:Ckdnsdacd#050@ds01316.mlab.com:1316/urlShortener';
+//var url = 'mongodb://theokeles:Ckdnsdacd#050@ds145669.mlab.com:45669/mongolad';
 //Protecting the credentials by setting env variables in Heroku, not exposing in public repo
 var url = process.env.MONGOLAB_URI;
 //Using global promise since mongoose promise is deprecated
