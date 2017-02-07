@@ -27,11 +27,11 @@ app.get('/new/*', function(request, response) {
     //var urlCode;
     //Validate URL format and duplicate values
     if (validateInputUrl(longUrl) === true) {
-        console.log("A valid URL");
+        console.log("--A valid URL--");
         //Mongoose query.exec() function returns a Promise
         isDuplicateUrl(longUrl).then(function(docs) {
             if (docs.length === 0) {
-                console.log("Not a duplicate URL");
+                console.log("--Not a duplicate URL--");
                 var urlData;
                 //Get the 'urlCode sequence value' for new urlData entry
                 var counterPromise = dbops.getLatestUrlCodeSequence('urlCode');
@@ -55,13 +55,12 @@ app.get('/new/*', function(request, response) {
                     })
                     //On savePromise return of docs saved to db
                     .then(function(docs) {
-                        {
-                            response.status(200).json({
-                                'originalURL': docs.originalLongUrl,
-                                'urlCode': docs.urlCode,
-                                'shortURL': docs.shortURL
-                            });
-                        }
+                        response.status(200).json({
+                            'originalURL': docs.originalLongUrl,
+                            'urlCode': docs.urlCode,
+                            'shortURL': docs.shortURL
+                        });
+
                         dbops.incrementCounter()
                             .then(function(result) {
                                 console.log("Success updated counters collection sequence field ", result);
@@ -76,9 +75,9 @@ app.get('/new/*', function(request, response) {
             }
         });
     } else {
-        console.log("Invalid URL format");
+        console.log("--Invalid URL format--");
         response.status(500).json({
-            'error': 'Invalid URL format.URL must comply to http(s)://(www.)domain.ext(/)(path)',
+            'error': 'Invalid URL format. URL must comply to http(s)://(www.)domain.ext(/)(path)',
             'url': longUrl
         });
     }
