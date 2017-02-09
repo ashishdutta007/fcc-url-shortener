@@ -61,7 +61,7 @@ app.get('/new/*', function(request, response) {
 
 //Validate format of input url
 function validateInputUrl(url) {
-    var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])(\/[-A-Za-z0-9@:%._\+~#=?]*)*/");
+    var pattern = new RegExp("/(https?:\/\/)?(www\.)([-A-Za-z0-9@:%._\+~#=?]+)([a-z])([\/-A-Za-z0-9@:%._\+~#=?]*)*/");
     var result = pattern.test(url);
     console.log('isValidUrl ?: ', result);
     return result;
